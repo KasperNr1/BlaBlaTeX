@@ -2,6 +2,7 @@ import os
 import shutil
 import subprocess
 import typer
+from typing import Optional
 from pathlib import Path
 from git import Repo, InvalidGitRepositoryError
 
@@ -48,7 +49,7 @@ def set_repo(url: str):
 @app.command()
 def path():
     """Get the full path of the local Repository"""
-    typer.echo(f"😎 {REPO_PATH}")
+    typer.echo(f"😎 Local Clone: {REPO_PATH}")
 
 @app.command()
 def list():
@@ -61,19 +62,27 @@ def list():
 
 
 @app.command()
-def init(name: str):
-    """Copy a template to the current folder."""
+def init(
+    name: str,
+    new_name: Optional[str] = typer.Argument(
+        None,
+        help="Optional: name of the destination folder. Defaults to the template name.",
+    ),
+):
+    """Copy a template to the current folder (optionally renaming the folder)."""
     clone_or_update_repo()
-    src = REPO_PATH / name
-    dst = Path.cwd() / name
 
+    src = REPO_PATH / name
     if not src.exists():
         typer.echo(f"❌ Template '{name}' not found.")
-        raise typer.Exit()
+        raise typer.Exit(code=1)
+
+    dst_name = new_name or name
+    dst = Path.cwd() / dst_name
 
     if dst.exists():
-        typer.echo(f"⚠️  Folder '{name}' already exists in current directory.")
-        raise typer.Exit()
+        typer.echo(f"⚠️  Destination '{dst_name}' already exists in current directory.")
+        raise typer.Exit(code=1)
 
     shutil.copytree(src, dst)
     typer.echo(f"✅ Template '{name}' copied to: {dst}")
