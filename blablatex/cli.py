@@ -23,7 +23,7 @@ def load_repo_url():
 def clone_or_update_repo():
     repo_url = load_repo_url()
     if not repo_url:
-        typer.echo("⚠️  No repo configured. Use `tool set-repo <url>` first.")
+        typer.echo("⚠️  No repo configured. Use `blablatex set-repo <url>` first.")
         raise typer.Exit()
 
     if REPO_PATH.exists():
