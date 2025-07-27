@@ -1,6 +1,6 @@
-import os
+import stat
 import shutil
-import subprocess
+import os
 import typer
 from typing import Optional
 from pathlib import Path
@@ -10,6 +10,7 @@ app = typer.Typer()
 CONFIG_PATH = Path.home() / ".template_tool"
 REPO_PATH = CONFIG_PATH / "repo"
 CONFIG_FILE = CONFIG_PATH / "config.txt"
+NON_TEMPLATE_FOLDERS = [".git"]
 
 
 def load_repo_url():
@@ -58,7 +59,8 @@ def list():
     folders = [f.name for f in REPO_PATH.iterdir() if f.is_dir()]
     typer.echo("📁 Available templates:")
     for name in folders:
-        typer.echo(f"  - {name}")
+        if name not in NON_TEMPLATE_FOLDERS:
+            typer.echo(f"  - {name}")
 
 
 @app.command()
@@ -73,7 +75,7 @@ def init(
     clone_or_update_repo()
 
     src = REPO_PATH / name
-    if not src.exists():
+    if not src.exists() or name in NON_TEMPLATE_FOLDERS:
         typer.echo(f"❌ Template '{name}' not found.")
         raise typer.Exit(code=1)
 
@@ -92,9 +94,22 @@ def init(
 def refresh():
     """Force refresh the local copy of the repo."""
     if REPO_PATH.exists():
-        shutil.rmtree(REPO_PATH)
-        typer.echo("🧹 Old repo removed.")
+        try: 
+            shutil.rmtree(REPO_PATH, onerror=remove_readonly)
+            typer.echo("🧹 Old repo removed.")
+        except PermissionError:
+            typer.echo("🚨 An error occured while trying to remove the repository. Try manually deleting it")
+            path()
+            typer.echo()
+            raise typer.Exit(code=1)
+    else:
+        typer.echo("⚡ The Repo was not found.")
     clone_or_update_repo()
+    
+def remove_readonly(func, path, _):
+    """Force remove read-only files on Windows."""
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
 
 
 if __name__ == "__main__":
