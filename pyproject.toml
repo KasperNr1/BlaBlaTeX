@@ -8,3 +8,10 @@ requires-python = ">=3.7"
 
 [project.scripts]
 blablatex = "tool.cli:app"
+
+[project.urls]
+Repository = "https://github.com/KasperNr1/BlaBlaTeX"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
