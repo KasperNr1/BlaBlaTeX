@@ -45,30 +45,6 @@ def clone_or_update_repo():
         Repo.clone_from(repo_url, REPO_PATH)
         typer.echo("✅ Repo cloned.")
 
-
-@app.command()
-def set_repo(url: str):
-    """Set the template repository URL."""
-    CONFIG_PATH.mkdir(parents=True, exist_ok=True)
-    CONFIG_FILE.write_text(url.strip())
-    typer.echo(f"✅ Repository set to: {url}")
-
-@app.command()
-def path():
-    """Get the full path of the local Repository"""
-    typer.echo(f"😎 Local Clone: {REPO_PATH}")
-
-@app.command()
-def list():
-    """List available templates."""
-    clone_or_update_repo()
-    folders = [f.name for f in REPO_PATH.iterdir() if f.is_dir()]
-    typer.echo("📁 Available templates:")
-    for name in folders:
-        if name not in NON_TEMPLATE_FOLDERS:
-            typer.echo(f"  - {name}")
-
-
 @app.command()
 def init(
     name: str,
@@ -95,6 +71,20 @@ def init(
     shutil.copytree(src, dst)
     typer.echo(f"✅ Template '{name}' copied to: {dst}")
 
+@app.command()
+def list():
+    """List available templates."""
+    clone_or_update_repo()
+    folders = [f.name for f in REPO_PATH.iterdir() if f.is_dir()]
+    typer.echo("📁 Available templates:")
+    for name in folders:
+        if name not in NON_TEMPLATE_FOLDERS:
+            typer.echo(f"  - {name}")
+
+@app.command()
+def path():
+    """Get the full path of the local Repository"""
+    typer.echo(f"😎 Local Clone: {REPO_PATH}")
 
 @app.command()
 def refresh():
@@ -111,6 +101,13 @@ def refresh():
     else:
         typer.echo("⚡ The Repo was not found.")
     clone_or_update_repo()
+
+@app.command()
+def set_repo(url: str):
+    """Set the template repository URL."""
+    CONFIG_PATH.mkdir(parents=True, exist_ok=True)
+    CONFIG_FILE.write_text(url.strip())
+    typer.echo(f"✅ Repository set to: {url}")
     
 def remove_readonly(func, path, _):
     """Force remove read-only files on Windows."""
