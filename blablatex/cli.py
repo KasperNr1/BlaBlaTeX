@@ -4,7 +4,7 @@ import os
 import typer
 from typing import Optional
 from pathlib import Path
-from git import Repo, InvalidGitRepositoryError
+from git import Repo, InvalidGitRepositoryError, GitCommandError
 
 app = typer.Typer()
 CONFIG_PATH = Path.home() / ".template_tool"
@@ -32,9 +32,14 @@ def clone_or_update_repo():
             origin = repo.remotes.origin
             origin.pull()
             typer.echo("🔄 Repo updated.")
+        except GitCommandError as e:
+            typer.echo(f"⚠️ Could not update repo (probably no internet): \n{e}")
+            typer.echo("💡 Using existing local copy instead.")
         except InvalidGitRepositoryError:
-            typer.echo("❌ Repo folder is corrupted. Delete ~/.template_tool/repo and try again.")
+            typer.echo(f"❌ Repo folder is corrupted. Delete \"{REPO_PATH}\" and try again.")
             raise typer.Exit()
+        except Exception as e:
+            typer.echo(f"❌ Something went wrong when attempting to clone or update the repo, I'll try my best to continue!\nHere is the Exception: {e}")
     else:
         Repo.clone_from(repo_url, REPO_PATH)
         typer.echo("✅ Repo cloned.")
