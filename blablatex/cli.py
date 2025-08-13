@@ -11,7 +11,7 @@ CONFIG_PATH = Path.home() / ".template_tool"
 REPO_PATH = CONFIG_PATH / "repo"
 CONFIG_FILE = CONFIG_PATH / "config.txt"
 NON_TEMPLATE_FOLDERS = [".git"]
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 
 
 def load_repo_url():
@@ -42,8 +42,12 @@ def clone_or_update_repo():
         except Exception as e:
             typer.echo(f"❌ Something went wrong when attempting to clone or update the repo, I'll try my best to continue!\nHere is the Exception: {e}")
     else:
-        Repo.clone_from(repo_url, REPO_PATH)
-        typer.echo("✅ Repo cloned.")
+        try:
+            Repo.clone_from(repo_url, REPO_PATH)
+            typer.echo("✅ Repo cloned.")
+        except Exception as e:
+            typer.echo(f"❌ Unable to clone the Repository from {REPO_PATH}\nProbably no Internet Connection or the Repo does not exist!\n{e}")
+            
 
 @app.command()
 def init(

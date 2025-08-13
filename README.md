@@ -23,6 +23,10 @@ This list can be displayed by running `blablatex --help`
 - `version`    Display the version Number and Exit
 
 ## Changelog
+### 1.1.1
+#### Bugfix
+Prevent a crash when cloning the Remote-Repo from Scratch. 
+
 ### 1.1.0
 #### Features
 - Add Command `version` to display current Version number
