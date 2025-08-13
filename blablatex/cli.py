@@ -11,6 +11,7 @@ CONFIG_PATH = Path.home() / ".template_tool"
 REPO_PATH = CONFIG_PATH / "repo"
 CONFIG_FILE = CONFIG_PATH / "config.txt"
 NON_TEMPLATE_FOLDERS = [".git"]
+__version__ = "1.1.0"
 
 
 def load_repo_url():
@@ -115,6 +116,14 @@ def remove_readonly(func, path, _):
     """Force remove read-only files on Windows."""
     os.chmod(path, stat.S_IWRITE)
     func(path)
+
+@app.command()
+def version():
+    """Print the version number and Exit."""
+    try:
+        print(f"BlaBlaTeX is currently installed with Version:\n{__version__}")
+    except Exception as e:
+        raise typer.Exit(e)
 
 
 if __name__ == "__main__":
