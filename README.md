@@ -15,8 +15,27 @@ This will copy the folder called `templateName` from your repository into the cu
 ## Commands
 This list can be displayed by running `blablatex --help`
 
+- `init`       Copy a template to the current folder (optionally renaming the folder).
+- `list`       List available templates.
+- `path`       Get the full path of the local Repository
+- `refresh`    Force refresh the local copy of the repo.          
+- `set-repo`   Set the template repository URL.
+- `version`    Display the version Number and Exit
+
+## Changelog
+### 1.1.0
+#### Features
+- Add Command `version` to display current Version number
+- Now Works offline with most recent status
+
+#### Bugfixes
+Fix a crash that is caused by failed pulls from Git Remote Repository.
+
+### 1.0.0
+Initial Release, add the following commands:
+
 - `set-repo`   Set the template repository URL.
 - `path`       Get the full path of the local Repository
 - `list`       List available templates.
 - `init`       Copy a template to the current folder (optionally renaming the folder).
-- `refresh`    Force refresh the local copy of the repo.                  
+- `refresh`    Force refresh the local copy of the repo.          
