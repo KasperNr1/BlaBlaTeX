@@ -1,7 +1,23 @@
 # BlaBlaTex
 Is a Tool to write Boilerplate code to help you use your personal collection of $\LaTeX$ Templates.
 
+It clones the specified repo into a hidden folder on your computer and copies subfolders from it to whereever you need it. This way you dont even need an internet connection after the first setup.
+
+Since the tool copies subfolders of a repo, it is recommended to structure your templates in a way that no files outside their folder are required.
+
 ## How To Use
+### Installation
+You can install the app through python's package manager `pip` using
+``` Shell
+pip install blablatex
+```
+
+If you want to install a specific version, you can do that
+```
+pip install blablatex==1.x.x
+```
+
+
 ### Setup
 0. Install Git, Python, this Package, and probably LaTeX
 1. Find or Create a public Git Repository with your LaTeX Templates
