@@ -10,8 +10,9 @@ app = typer.Typer()
 CONFIG_PATH = Path.home() / ".template_tool"
 REPO_PATH = CONFIG_PATH / "repo"
 CONFIG_FILE = CONFIG_PATH / "config.txt"
+CREDENTIALS_FILE = CONFIG_PATH / "credentials.txt"
 NON_TEMPLATE_FOLDERS = [".git"]
-__version__ = "1.1.1"
+__version__ = "1.2.0"
 
 
 def load_repo_url():
@@ -21,11 +22,33 @@ def load_repo_url():
         return None
 
 
+def load_token():
+    """Load GitHub PAT from credentials file."""
+    if CREDENTIALS_FILE.exists():
+        return CREDENTIALS_FILE.read_text().strip()
+    else:
+        return None
+
+
+def build_repo_url_with_auth(repo_url: str, token: str) -> str:
+    """Build authenticated HTTPS URL for GitHub repositories."""
+    if token and "github.com" in repo_url:
+        # Convert from https://github.com/user/repo.git to https://token@github.com/user/repo.git
+        if repo_url.startswith("https://"):
+            return repo_url.replace("https://", f"https://{token}@")
+        elif repo_url.startswith("http://"):
+            return repo_url.replace("http://", f"http://{token}@")
+    return repo_url
+
+
 def clone_or_update_repo():
     repo_url = load_repo_url()
     if not repo_url:
         typer.echo("⚠️  No repo configured. Use `blablatex set-repo <url>` first.")
         raise typer.Exit()
+
+    token = load_token()
+    auth_repo_url = build_repo_url_with_auth(repo_url, token) if token else repo_url
 
     if REPO_PATH.exists():
         try:
@@ -43,10 +66,10 @@ def clone_or_update_repo():
             typer.echo(f"❌ Something went wrong when attempting to clone or update the repo, I'll try my best to continue!\nHere is the Exception: {e}")
     else:
         try:
-            Repo.clone_from(repo_url, REPO_PATH)
+            Repo.clone_from(auth_repo_url, REPO_PATH)
             typer.echo("✅ Repo cloned.")
         except Exception as e:
-            typer.echo(f"❌ Unable to clone the Repository from {REPO_PATH}\nProbably no Internet Connection or the Repo does not exist!\n{e}")
+            typer.echo(f"❌ Unable to clone the Repository from {repo_url}\nProbably no Internet Connection, invalid credentials, or the Repo does not exist!\n{e}")
             
 
 @app.command()
@@ -107,11 +130,33 @@ def refresh():
     clone_or_update_repo()
 
 @app.command()
+def set_token(token: str = typer.Argument(..., help="GitHub Personal Access Token (PAT) for private repositories")):
+    """Set GitHub Personal Access Token for private repository access."""
+    CONFIG_PATH.mkdir(parents=True, exist_ok=True)
+    CREDENTIALS_FILE.write_text(token.strip())
+    # Set restrictive permissions (readable/writable by owner only)
+    os.chmod(CREDENTIALS_FILE, 0o600)
+    typer.echo("✅ GitHub Personal Access Token saved securely.")
+    typer.echo("💡 You can now use private repositories!")
+
+@app.command()
+def clear_token():
+    """Remove stored GitHub Personal Access Token."""
+    if CREDENTIALS_FILE.exists():
+        CREDENTIALS_FILE.unlink()
+        typer.echo("✅ GitHub Personal Access Token removed.")
+    else:
+        typer.echo("ℹ️  No token stored.")
+
+@app.command()
 def set_repo(url: str):
     """Set the template repository URL."""
     CONFIG_PATH.mkdir(parents=True, exist_ok=True)
     CONFIG_FILE.write_text(url.strip())
     typer.echo(f"✅ Repository set to: {url}")
+    token = load_token()
+    if token:
+        typer.echo("💡 Authentication token is configured and will be used if needed.")
     
 def remove_readonly(func, path, _):
     """Force remove read-only files on Windows."""

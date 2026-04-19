@@ -20,8 +20,11 @@ pip install blablatex==1.x.x
 
 ### Setup
 0. Install Git, Python, this Package, and probably LaTeX
-1. Find or Create a public Git Repository with your LaTeX Templates
-2. Run `blablatex set-repo <url>` to connect it to your Repository
+1. Find or Create a Git Repository with your LaTeX Templates (public or private)
+2. **For private repositories only:** Run `blablatex set-token <your-github-pat>` to add authentication
+   - Create a Personal Access Token (PAT) on GitHub with `repo` scope: https://github.com/settings/tokens
+   - This token is stored locally in `~/.template_tool/credentials.txt` with restricted permissions
+3. Run `blablatex set-repo <url>` to connect it to your Repository
 
 ### Usage
 1. Run `blablatex init <templateName> [newFolderName]`
@@ -31,14 +34,28 @@ This will copy the folder called `templateName` from your repository into the cu
 ## Commands
 This list can be displayed by running `blablatex --help`
 
-- `init`       Copy a template to the current folder (optionally renaming the folder).
-- `list`       List available templates.
-- `path`       Get the full path of the local Repository
-- `refresh`    Force refresh the local copy of the repo.          
-- `set-repo`   Set the template repository URL.
-- `version`    Display the version Number and Exit
+- `init`          Copy a template to the current folder (optionally renaming the folder).
+- `list`          List available templates.
+- `path`          Get the full path of the local Repository
+- `refresh`       Force refresh the local copy of the repo.          
+- `set-repo`      Set the template repository URL.
+- `set-token`     Set GitHub Personal Access Token for private repository access.
+- `clear-token`   Remove stored GitHub Personal Access Token.
+- `version`       Display the version Number and Exit
 
 ## Changelog
+### 1.2.0
+#### Features
+- Add support for private repositories with GitHub Personal Access Token (PAT) authentication
+- Add command `set-token` to configure GitHub PAT for private repository access
+- Add command `clear-token` to remove stored authentication token
+- Credentials are stored securely with restricted file permissions
+- Update `set-repo` command to show when authentication is configured
+
+#### Security
+- Credentials are stored locally with restrictive permissions (owner read/write only)
+- Tokens are never displayed or logged by the application
+
 ### 1.1.1
 #### Bugfix
 Prevent a crash when cloning the Remote-Repo from Scratch. 
@@ -58,4 +75,4 @@ Initial Release, add the following commands:
 - `path`       Get the full path of the local Repository
 - `list`       List available templates.
 - `init`       Copy a template to the current folder (optionally renaming the folder).
-- `refresh`    Force refresh the local copy of the repo.          
+- `refresh`    Force refresh the local copy of the repo.
